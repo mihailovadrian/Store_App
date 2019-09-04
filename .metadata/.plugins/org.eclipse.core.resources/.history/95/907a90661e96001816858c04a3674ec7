@@ -1,0 +1,30 @@
+package entities;
+
+public class ProductRequest
+{
+	private int id;
+	private int productId;
+	private int cartId;
+	private String entry_datatime;
+	private int quantity;
+
+	public ProductRequest( int id, int productId, int cartId, String entry_datatime, int quantity )
+	{
+		super();
+		this.id = id;
+		this.productId = productId;
+		this.cartId = cartId;
+		this.entry_datatime = entry_datatime;
+		this.quantity = quantity;
+	}
+
+	public ProductRequest()
+	{
+		super();
+		this.id = 0;
+		this.productId = 0;
+		this.cartId = 0;
+		this.entry_datatime = null;
+		this.quantity = 0;
+	}
+}

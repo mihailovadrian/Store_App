@@ -1,0 +1,90 @@
+package frames;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+
+import app.AppContext;
+import entities.*;
+import frames.models.CartProductsModel;
+import tools.GridPanel;
+import tools.GuiTools;
+
+public class ViewCartProducts extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+	private AppContext context;
+
+	private CartProducts cartProd;
+
+	private JTable tblCartProduct;
+	private CartProductsModel mdlCartProd;
+	private JScrollPane tableScrollPane;
+
+	public static CartProducts showCart( JFrame parent, AppContext context )
+	{
+		CartProducts result = null;
+		ViewCartProducts d = new ViewCartProducts(parent, context);
+		GuiTools.showDialog(d, null, parent);
+		result = d.cartProd;
+		return result;
+	}
+
+	public ViewCartProducts( JFrame parent, AppContext context )
+	{
+		super(parent);
+		this.context = context;
+		setupGUI(context);
+	}
+
+	private void setupGUI( AppContext context )
+	{
+		setTitle("View your cart");
+
+		setSize(new Dimension(700, 500));
+
+		this.context = context;
+
+		mdlCartProd = new CartProductsModel();
+		tblCartProduct = new JTable(mdlCartProd);
+
+		tableScrollPane = new JScrollPane(tblCartProduct);
+		tableScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		tableScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		JButton btnCloseCart = new JButton("Finish");
+		btnCloseCart.addActionListener(this);
+		btnCloseCart.setActionCommand("CLOSECART");
+
+		JButton btnDeleteCartProduct = new JButton("Delete");
+		btnDeleteCartProduct.addActionListener(this);
+		btnDeleteCartProduct.setActionCommand("DELETECARTPRODUCT");
+
+		JButton btnExit = new JButton("Close");
+		btnExit.addActionListener(this);
+		btnExit.setActionCommand("CLOSE");
+
+		GridPanel pan = new GridPanel(5, 5, 0, 0);
+
+		pan.addObject(0, 0, 1.0, 1.0, 1, 3, tableScrollPane);
+
+		pan.addObject(1, 0, 0.0, 0.0, 1, 1, btnCloseCart);
+		pan.addObject(1, 1, 0.0, 0.0, 1, 1, btnDeleteCartProduct);
+
+		pan.addSizing(1, 2, 0.0, 1.0, 1, 1, 0, 10);
+		pan.addSizing(0, 2, 0.0, 1.0, 1, 1, 0, 10);
+		pan.addObject(1, 3, 0.0, 0.0, 1, 1, btnExit);
+		pan.addSizing(2, 4, 0.0, 0.0, 1, 1, 0, 0);
+
+		setContentPane(pan);
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+
+	}
+
+}

@@ -1,0 +1,81 @@
+package frames;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+
+import app.AppContext;
+import entities.ProductRequest;
+import threads.RequestProductThread;
+import tools.GridPanel;
+import tools.GuiTools;
+import tools.MutableBoolean;
+
+public class ProductRequestLoadingDialog extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+	private AppContext context;
+	private ProductRequest prodReq;
+	private RequestProductThread thread;
+	private MutableBoolean stop;
+
+	public static boolean ProdRequest( JDialog parent, AppContext context, ProductRequest prodReq )
+	{
+		boolean result = false;
+		
+		ProductRequestLoadingDialog d = new ProductRequestLoadingDialog(parent, context, prodReq);
+		GuiTools.showDialog(d, parent, null);
+		result = (prodReq.getStatus() == ProductRequest.ALLOCATED);
+
+		return result;
+	}
+
+	ProductRequestLoadingDialog( JDialog parent, AppContext context, ProductRequest prodReq )
+	{
+		this.context = context;
+		this.prodReq = prodReq;
+
+		stop = new MutableBoolean(false);
+
+		SetupGUI(context);
+	}
+
+	private void SetupGUI( AppContext context )
+	{
+		setTitle("Loading Request");
+
+		setSize(new Dimension(150, 150));
+
+		this.context = context;
+
+		JButton btnCancel = new JButton("Cancel");
+		btnCancel.addActionListener(this);
+		btnCancel.setActionCommand("CANCEL");
+
+		GridPanel pan = new GridPanel(5, 5, 0, 0);
+
+		pan.addObject(0, 0, 1.0, 0.0, 1, 1, new JLabel("Loading ..."));
+		pan.addSizing(0, 1, 0.0, 1.0, 1, 1, 0, 0);
+		pan.addObject(0, 2, 1.0, 0.0, 1, 1, btnCancel);
+		pan.addSizing(1, 3, 0.0, 1.0, 1, 1, 0, 0);
+
+		setContentPane(pan);
+
+		thread = new RequestProductThread(prodReq, context, stop);
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+		String command = e.getActionCommand();
+
+		if (command.equalsIgnoreCase("CANCEL"))
+		{
+			stop.setValue(true);
+			dispose();
+		}
+	}
+
+}

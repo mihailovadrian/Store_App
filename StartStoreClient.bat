@@ -1,0 +1,1 @@
+start C:\Java\jdk80_171\bin\javaw.exe -cp StoreClient.jar;sqljdbc4.jar; StoreStart

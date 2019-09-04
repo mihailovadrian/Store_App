@@ -1,0 +1,9 @@
+package frames.models;
+
+import entities.*;
+import frames.models.*;
+
+public class ProductRequestModel extends GenericModel<ProductRequest>
+{
+
+}

@@ -1,0 +1,62 @@
+package frames.models;
+
+import entities.*;
+import frames.tools.GenericComparator;
+import frames.tools.GenericModel;
+
+public class ProductRequestModel extends GenericModel<ProductRequest>
+{
+	public ProductRequestModel()
+	{
+		super();
+	}
+
+	@Override
+	public int getColumnCount( )
+	{
+
+		return 4;
+	}
+
+	@Override
+	public Object getValueAt( int rowIndex, int columnIndex )
+	{
+
+		return null;
+	}
+
+	@Override
+	protected GenericComparator<ProductRequest> createComparator( )
+	{
+
+		return null;
+	}
+
+	@Override
+	public String getColumnName( int columnIndex )
+	{
+		String result = null;
+
+		if ((0 <= columnIndex) && (columnIndex < getColumnCount()))
+		{
+			switch (columnIndex)
+			{
+				case 0:
+					result = "Id";
+					break;
+				case 1:
+					result = "Date time";
+					break;
+				case 2:
+					result = "Quantity";
+					break;
+				case 3:
+					result = "Status";
+					break;
+
+			}
+		}
+		return result;
+	}
+
+}

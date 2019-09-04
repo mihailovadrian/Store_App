@@ -1,0 +1,21 @@
+1533104172998	Rename type 'ViewCart'
+1533107374782	Rename local variable 'atr'
+1533124945664	Rename field 'cartProd'
+1533191999785	Rename field 'ViewReg'
+1533194426417	Copy compilation unit
+1533194643655	Rename method 'setEntry_datatime'
+1533195331888	Rename field 'entry_datatime'
+1533195348280	Rename method 'getEntry_datatime'
+1533197684448	Rename type 'LoadingDialog'
+1533199168912	Copy package
+1533199182383	Copy package
+1533199203917	Copy package
+1533199222903	Copy package
+1533199251812	Copy package
+1533199269392	Copy package
+1533199304318	Copy package
+1533214089025	Rename type 'ProductRequestLoadingDialog'
+1533214209296	Rename local variable 'is_user'
+1533214227378	Rename type 'Carts'
+1533215768571	Copy compilation unit
+1533218681344	Copy folder

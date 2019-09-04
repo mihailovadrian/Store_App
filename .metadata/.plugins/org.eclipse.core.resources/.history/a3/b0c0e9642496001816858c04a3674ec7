@@ -1,0 +1,108 @@
+package entities;
+
+public class ProductRequest
+{
+	private int id;
+	private int productId;
+	private int cartId;
+	private String entry_datatime;
+	private int quantity;
+	private int quantityAllocated;
+	private String allocatedDatetime;
+
+	public ProductRequest( int id, int productId, int cartId, String entry_datatime, int quantity, int quantityAllocated, String allocatedDatetime )
+	{
+		super();
+		this.id = id;
+		this.productId = productId;
+		this.cartId = cartId;
+		this.entry_datatime = entry_datatime;
+		this.quantity = quantity;
+		this.quantityAllocated = quantityAllocated;
+		this.allocatedDatetime = allocatedDatetime;
+	}
+
+	public ProductRequest()
+	{
+		super();
+		this.id = 0;
+		this.productId = 0;
+		this.cartId = 0;
+		this.entry_datatime = null;
+		this.quantity = 0;
+		this.quantityAllocated = 0;
+		this.allocatedDatetime = null;
+	}
+
+	public int getId( )
+	{
+		return id;
+	}
+
+	public void setId( int id )
+	{
+		this.id = id;
+	}
+
+	public int getProductId( )
+	{
+		return productId;
+	}
+
+	public void setProductId( int productId )
+	{
+		this.productId = productId;
+	}
+
+	public int getCartId( )
+	{
+		return cartId;
+	}
+
+	public void setCartId( int cartId )
+	{
+		this.cartId = cartId;
+	}
+
+	public String getEntry_datatime( )
+	{
+		return entry_datatime;
+	}
+
+	public void setEntry_datatime( String entry_datatime )
+	{
+		this.entry_datatime = entry_datatime;
+	}
+
+	public int getQuantity( )
+	{
+		return quantity;
+	}
+
+	public void setQuantity( int quantity )
+	{
+		this.quantity = quantity;
+	}
+
+	@Override
+	public String toString( )
+	{
+		return "ProductRequest [id=" + id + ", productId=" + productId + ", cartId=" + cartId + ", entry_datatime=" + entry_datatime + ", quantity=" + quantity + "]";
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		ProductRequest other = (ProductRequest) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
+
+}

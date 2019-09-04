@@ -1,0 +1,109 @@
+package dbTools;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import app.AppContext;
+import entities.*;
+
+public class DBOpeationsCart
+{
+	static protected Carts readCart( ResultSet rs, Carts cart )
+	{
+		Carts result = null;
+
+		try
+		{
+			if (rs != null)
+			{
+				if (cart == null)
+				{
+					cart = new Carts();
+				}
+
+				cart.setId(rs.getInt("id_cart"));
+				cart.setId_user(rs.getInt("id_user"));
+				cart.setStatus(rs.getInt("status"));
+
+				result = cart;
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			result = null;
+		}
+
+		return result;
+	}
+	
+	static public Carts getCart( AppContext context, int id )
+	{
+		Carts result = null;
+
+		Connection con = context.getConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		String sql = "select * from carts where id_cart= ?";
+
+		try
+		{
+			ps = con.prepareStatement(sql);
+
+			ps.setInt(1, id);
+
+			rs = ps.executeQuery();
+
+			if (rs.next())
+			{
+				result = readCart(rs, null);
+			}
+		}
+		catch (Exception e)
+		{
+			result = null;
+			e.printStackTrace();
+		}
+		finally
+		{
+			onFinally(null, rs, ps);
+		}
+
+		return result;
+	}
+	
+	public static void onFinally( Statement st, ResultSet rs, PreparedStatement ps )
+	{
+		if (rs != null)
+			try
+			{
+				rs.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		if (st != null)
+			try
+			{
+				st.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		try
+		{
+			if (ps != null)
+			{
+				ps.close();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+}

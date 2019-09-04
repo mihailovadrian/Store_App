@@ -1,0 +1,42 @@
+package dbTools;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import entities.*;
+
+public class DBOperationsCartProduct
+{
+	static protected CartProducts readAttribute( ResultSet rs, CartProducts cartProd )
+	{
+		CartProducts result = null;
+
+		try
+		{
+			if (rs != null)
+			{
+				if (cartProd == null)
+				{
+					cartProd = new CartProducts();
+				}
+
+				cartProd.setId(rs.getInt("id_cartproduct"));
+				cartProd.setId_cart(rs.getInt("id_cart"));
+				cartProd.setId_product(rs.getInt("id_product"));
+				cartProd.setEntry_DataTime(rs.getString("entry_dataTime"));
+				cartProd.setValueType(rs.getInt("valuetype"));
+				cartProd.setList(rs.getInt("islist") == 1);
+				atr.setMandatory(rs.getInt("ismandatory") == 1);
+
+				result = atr;
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			result = null;
+		}
+
+		return result;
+	}
+}

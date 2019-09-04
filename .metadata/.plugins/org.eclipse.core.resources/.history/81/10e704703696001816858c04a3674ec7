@@ -1,0 +1,51 @@
+package frames;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+
+import app.AppContext;
+import entities.ProductRequest;
+import frames.models.ProductRequestModel;
+
+public class ViewProductRequest extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+
+	private AppContext context;
+
+	private JTable tblProductRequest;
+	private ProductRequestModel mdlProdReq;
+	private JScrollPane scpProductRequest;
+
+	public static ProductRequest showProductRequest( JFrame parent, AppContext context )
+	{
+		ProductRequest result = null;
+		ViewProductRequest d = new ViewProductRequest(parent, context);
+		return result;
+	}
+
+	public ViewProductRequest( JFrame parent, AppContext context )
+	{
+		super(parent);
+
+		setupGUI(context);
+	}
+
+	private void setupGUI( AppContext context )
+	{
+
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+}

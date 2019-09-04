@@ -1,0 +1,167 @@
+package dbTools;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
+
+import app.AppContext;
+import entities.*;
+
+public class DBOperationsCartProduct
+{
+	static protected CartProducts readCartProduct( ResultSet rs, CartProducts cartProd )
+	{
+		CartProducts result = null;
+
+		try
+		{
+			if (rs != null)
+			{
+				if (cartProd == null)
+				{
+					cartProd = new CartProducts();
+				}
+
+				cartProd.setId(rs.getInt("id_cartproduct"));
+				cartProd.setId_cart(rs.getInt("id_cart"));
+				cartProd.setId_product(rs.getInt("id_product"));
+				cartProd.setEntry_DataTime(rs.getString("entry_dataTime"));
+				cartProd.setQuantity(rs.getInt("quantity"));
+
+				result = cartProd;
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			result = null;
+		}
+
+		return result;
+	}
+
+	static public CartProducts getCartProductById( AppContext context, int id )
+	{
+		CartProducts result = null;
+
+		Connection con = context.getConnection();
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+
+		String sql = "select * from cartproducts where id_cartproduct= ?";
+
+		try
+		{
+			ps = con.prepareStatement(sql);
+
+			ps.setInt(1, id);
+
+			rs = ps.executeQuery();
+
+			if (rs.next())
+			{
+				result = readCartProduct(rs, null);
+			}
+		}
+		catch (Exception e)
+		{
+			result = null;
+			e.printStackTrace();
+		}
+		finally
+		{
+			onFinally(null, rs, ps);
+		}
+
+		return result;
+	}
+
+	static public int addCartProduct( AppContext context, CartProducts cartProd )
+	{
+		int result = 0;
+
+		if (cartProd != null)
+		{
+			Connection con = context.getConnection();
+			PreparedStatement ps = null;
+			ResultSet rs = null;
+
+			String sql = " insert cartproducts (id_cart, id_product, entry_datetime,quantity)  values (?, ?, ?, ?)"; //OUTPUT Inserted.ID_USER
+
+			try
+			{
+				ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+				ps.setString(1, cartProd.getId_cart());
+				ps.setString(2, cartProd.getId_product());
+				ps.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+				ps.setInt(4, cartProd.getQuantity());
+
+				ps.executeUpdate();
+
+				rs = ps.getGeneratedKeys();
+				if (rs.next())
+				{
+					result = rs.getInt(1);
+				}
+
+				con.commit();
+			}
+
+			catch (Exception e)
+			{
+				e.printStackTrace();
+				result = 0;
+
+				try
+				{
+					con.rollback();
+				}
+				catch (SQLException e1)
+				{
+					e1.printStackTrace();
+				}
+			}
+			finally
+			{
+				onFinally(null, rs, ps);
+			}
+		}
+
+		return result;
+	}
+
+	public static void onFinally( Statement st, ResultSet rs, PreparedStatement ps )
+	{
+		if (rs != null)
+			try
+			{
+				rs.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		if (st != null)
+			try
+			{
+				st.close();
+			}
+			catch (Exception ex)
+			{
+			}
+		try
+		{
+			if (ps != null)
+			{
+				ps.close();
+			}
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+}

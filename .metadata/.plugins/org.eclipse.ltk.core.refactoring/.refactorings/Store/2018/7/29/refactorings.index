@@ -1,0 +1,58 @@
+1531817581662	Delete element
+1531820890446	Delete element
+1531821037499	Delete element
+1531822117898	Move file
+1531822148636	Move file
+1531897080734	Rename package 'test'
+1531897125764	Copy compilation unit
+1531897789549	Delete element
+1531899414484	Delete element
+1531906278385	Rename type 'UserEntitiesFrame'
+1531912172086	Delete element
+1531915115083	Delete element
+1531921767503	Rename type 'LogInFrame'
+1531982513434	Rename type 'AddUserFrame'
+1531991673478	Delete element
+1531999141025	Delete element
+1532001030818	Rename method 'Untitled'
+1532001071743	Rename method 'Untitled'
+1532003801925	Rename type 'Users'
+1532003839637	Rename type 'AddUserDialog'
+1532004028749	Rename method 'Setup'
+1532004369092	Rename type 'DataBaseCommands'
+1532004631140	Rename local variable 'stmt'
+1532005567649	Rename local variable 'preparedStmt'
+1532005575191	Rename local variable 'SqlCommand'
+1532005583207	Rename local variable 'TxtUserName'
+1532005593754	Rename local variable 'Password'
+1532005710553	Rename method 'LoginUser'
+1532005802145	Rename local variable 'preparedStmt'
+1532005809677	Rename local variable 'SqlCommand'
+1532006220983	Rename field 'Name'
+1532006234888	Rename field 'Email'
+1532006245976	Rename field 'Password'
+1532006254801	Rename field 'Address'
+1532006705033	Rename method 'setup'
+1532006900092	Rename field 'TxtUserName'
+1532006912942	Rename field 'passwordField'
+1532007486235	Rename field 'TxtName'
+1532007495351	Rename field 'TxtEmail'
+1532007504643	Rename field 'TxtAddress'
+1532007512785	Rename field 'TxtPassword'
+1532007521905	Rename field 'IsAdmin'
+1532007578146	Rename field 'Name'
+1532007585283	Rename field 'Email'
+1532007592704	Rename field 'Address'
+1532007599919	Rename field 'Password'
+1532007645382	Rename package 'Models'
+1532008980200	Rename field 'AddUsers'
+1532009082427	Rename local variable 'addUser'
+1532009272010	Rename method 'SetDesignElements'
+1532069458327	Delete element
+1532073000521	Rename local variable 'stmt'
+1532073016525	Rename local variable 'stmt'
+1532073039058	Rename local variable 'SqlCommand'
+1532075389560	Rename field 'TxtSearchField'
+1532077794127	Rename method 'Finally'
+1532079751226	Rename local variable 'btnShowUser'
+1532092428091	Rename field 'showRecords'

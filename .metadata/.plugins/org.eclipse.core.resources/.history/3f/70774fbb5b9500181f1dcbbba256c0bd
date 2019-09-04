@@ -1,0 +1,39 @@
+package dbTools;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import entities.*;
+
+public class DBOpeationsCart
+{
+	static protected Carts readCart( ResultSet rs, Carts cart )
+	{
+		Carts result = null;
+
+		try
+		{
+			if (rs != null)
+			{
+				if (cart == null)
+				{
+					cart = new Attribute();
+				}
+
+				cart.setId(rs.getInt("id_attribute"));
+				cart.setId_user(rs.getString("name"));
+				cart.setId_user(rs.getString("description"));
+				
+
+				result = cart;
+			}
+		}
+		catch (SQLException e)
+		{
+			e.printStackTrace();
+			result = null;
+		}
+
+		return result;
+	}
+}

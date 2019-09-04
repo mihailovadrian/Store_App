@@ -1,0 +1,24 @@
+package threads;
+
+import app.*;
+import entities.*;
+
+public class RequestProductThread extends Thread
+{
+	private ProductRequest productRequest;
+	private AppContext context;
+	
+	
+    public RequestProductThread( ProductRequest productRequest, AppContext context )
+	{
+		super();
+		
+		this.productRequest = productRequest;
+		this.context = context;
+	}
+
+
+	public void run() 
+    {
+    }
+}

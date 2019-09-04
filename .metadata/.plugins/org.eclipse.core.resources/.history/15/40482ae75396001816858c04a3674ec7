@@ -1,0 +1,510 @@
+package frames;
+
+import java.awt.event.*;
+
+import javax.swing.*;
+
+import app.*;
+import dbTools.DBOpeationsCart;
+import dbTools.DBOperationsCartProduct;
+import dbTools.DBOperationsProduct;
+import dbTools.DBOperationsProductRequest;
+import entities.*;
+import tools.*;
+import frames.models.*;
+
+public class MainFrame extends JFrame implements ActionListener
+{
+	private static final long serialVersionUID = 8544513875314876016L;
+
+	private AppContext context;
+	private JMenu AppMenu, AdminMenu;
+	private JMenuItem Login, Logout, Exit, Categories, Attributes, Products, ViewReq, AddUser, ViewUsers;
+	private JMenuBar Menu;
+
+	private JTable tblProducts;
+	private JTable tblCartProduct;
+
+	private ProductToBuyModel mdlProduct;
+	private CartProductsModel mdlCartProd;
+
+	private JButton btnAddProduct;
+
+	private JScrollPane scpProducts;
+	private JScrollPane scpCartProducts;
+
+	private CartProducts cartProduct;
+	private CartProducts cartProdToUpddate;
+
+	private Cart cart;
+	private CartsModel mdlCartModel;
+
+	private JButton btnEditQuantity;
+	private JButton btnCloseCart;
+	private JButton btnDeleteCartProduct;
+
+	public MainFrame()
+	{
+		super();
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		setTitle("Store");
+
+		context = new AppContext(ConnectionTools.openConnection("192.168.200.112:1433;instanceName=meseriashu", "Adrian", "sa", "Meseriashu10"));
+		cart = new Cart();
+		createMenus();
+		setupGuiForCurrentUser();
+	}
+
+	public void createMenus( )
+	{
+		Menu = new JMenuBar();
+
+		AppMenu = new JMenu("Application");
+		AdminMenu = new JMenu("Entities");
+
+		Login = new JMenuItem("LogIn");
+		Login.setActionCommand("LOGIN");
+		Login.addActionListener(this);
+
+		Logout = new JMenuItem("LogOut");
+		Logout.addActionListener(this);
+		Logout.setActionCommand("LOGOUT");
+
+		Exit = new JMenuItem("Exit");
+		Exit.setActionCommand("CLOSE");
+		Exit.addActionListener(this);
+
+		Categories = new JMenuItem("Categories");
+		Categories.setActionCommand("CATEGORIES");
+		Categories.addActionListener(this);
+
+		Attributes = new JMenuItem("Attributes");
+		Attributes.setActionCommand("ATTRIBUTES");
+		Attributes.addActionListener(this);
+
+		Products = new JMenuItem("Products");
+		Products.setActionCommand("PRODUCTS");
+		Products.addActionListener(this);
+
+		ViewReq = new JMenuItem("View Request");
+		ViewReq.setActionCommand("VIEWREQUEST");
+		ViewReq.addActionListener(this);
+
+		AddUser = new JMenuItem("Add User");
+		AddUser.setActionCommand("ADDUSER");
+		AddUser.addActionListener(this);
+
+		ViewUsers = new JMenuItem("View Users");
+		ViewUsers.setActionCommand("ViewUsers");
+		ViewUsers.addActionListener(this);
+
+		btnAddProduct = new JButton("Add");
+		btnAddProduct.addActionListener(this);
+		btnAddProduct.setActionCommand("ADDPRODUCT");
+
+		btnCloseCart = new JButton("Finish Command");
+		btnCloseCart.addActionListener(this);
+		btnCloseCart.setActionCommand("CLOSECART");
+
+		btnDeleteCartProduct = new JButton("Delete");
+		btnDeleteCartProduct.addActionListener(this);
+		btnDeleteCartProduct.setActionCommand("DELETECARTPRODUCT");
+
+		btnEditQuantity = new JButton("Edit Quantity");
+		btnEditQuantity.addActionListener(this);
+		btnEditQuantity.setActionCommand("EDITQUANTITY");
+
+		AppMenu.add(Login);
+		AppMenu.add(Logout);
+		AppMenu.addSeparator();
+		AppMenu.add(ViewUsers);
+		AppMenu.addSeparator();
+		AppMenu.add(Exit);
+		AdminMenu.add(Categories);
+		AdminMenu.add(Attributes);
+		AdminMenu.add(Products);
+		AdminMenu.add(AddUser);
+		AdminMenu.add(ViewReq);
+
+		Menu.add(AppMenu);
+		Menu.add(AdminMenu);
+
+		AdminMenu.setEnabled(true);
+		ViewReq.setEnabled(true);
+
+		setJMenuBar(Menu);
+
+		mdlProduct = new ProductToBuyModel();
+		tblProducts = new JTable(mdlProduct);
+
+		mdlCartProd = new CartProductsModel(this.context);
+		tblCartProduct = new JTable(mdlCartProd);
+
+		for (int i = 0; i < mdlCartProd.getColumnCount(); i++)
+		{
+			GuiTools.setColumnTitle(tblCartProduct, i, mdlCartProd.getColumnName(i));
+		}
+
+		mdlCartModel = new CartsModel();
+
+		for (int i = 0; i < mdlProduct.getColumnCount(); i++)
+		{
+			GuiTools.setColumnTitle(tblProducts, i, mdlProduct.getColumnName(i));
+		}
+		scpProducts = new JScrollPane(tblProducts);
+		scpProducts.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scpProducts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		scpCartProducts = new JScrollPane(tblCartProduct);
+		scpCartProducts.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scpCartProducts.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		GridPanel pan = new GridPanel(5, 5, 5, 0);
+
+		pan.addObject(0, 0, 1.0, 0.0, 1, 2, scpProducts);
+		pan.addObject(1, 0, 0.0, 0.0, 1, 1, btnAddProduct);
+		pan.addSizing(0, 1, 0.0, 1.0, 1, 1, 0, 10);
+		pan.addObject(0, 2, 1.0, 0.0, 1, 5, scpCartProducts);
+
+		pan.addObject(1, 2, 0.0, 0.0, 1, 1, btnCloseCart);
+		pan.addObject(1, 3, 0.0, 0.0, 1, 1, btnEditQuantity);
+		pan.addObject(1, 4, 0.0, 0.0, 1, 1, btnDeleteCartProduct);
+
+		setContentPane(pan);
+
+		updateTableContent();
+
+	}
+
+	private void updateTableContent( )
+	{
+		DBOperationsProduct.listProducts(context, mdlProduct.getList(), "", 0);
+		mdlProduct.sort();
+		mdlProduct.fireTableDataChanged();
+
+	}
+
+	private void setupGuiForCurrentUser( )
+	{
+		setTitle("Store");
+
+		if (context.getUser() != null)
+		{
+			setTitle("Store - logged in user '" + context.getUser().getName() + "'" + (context.getUser().isAdmin() ? " - as administrator" : ""));
+
+			AdminMenu.setEnabled(context.getUser().isAdmin());
+			Login.setEnabled(false);
+			Logout.setEnabled(true);
+			ViewUsers.setEnabled(context.getUser().isAdmin());
+
+			btnAddProduct.setEnabled(!context.getUser().isAdmin());
+			btnEditQuantity.setEnabled(!context.getUser().isAdmin());
+			btnCloseCart.setEnabled(!context.getUser().isAdmin());
+			btnDeleteCartProduct.setEnabled(!context.getUser().isAdmin());
+			updateCarts();
+
+			if (cart.getStatus() == 1)
+				updateTableContent(null, 0, true, cart.getId());
+
+		}
+		else
+		{
+			AdminMenu.setEnabled(false);
+			Login.setEnabled(true);
+			Logout.setEnabled(false);
+			ViewUsers.setEnabled(false);
+			btnAddProduct.setEnabled(false);
+			btnEditQuantity.setEnabled(false);
+			btnCloseCart.setEnabled(false);
+			btnDeleteCartProduct.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+		String command = e.getActionCommand();
+
+		if (command.equalsIgnoreCase("LOGIN"))
+		{
+			User user = LoginDialog.login(this, context);
+			if (user != null)
+			{
+				context.setUser(user);
+			}
+
+			setupGuiForCurrentUser();
+		}
+		if (command.equalsIgnoreCase("LOGOUT"))
+		{
+			context.setUser(null);
+			setupGuiForCurrentUser();
+			updateTableContent(null, 0, true, 0);
+		}
+		if (command.equalsIgnoreCase("ADDUSER"))
+		{
+			User user = EditUserDataDialog.addUser(this, context);
+			if (user != null)
+			{
+				JOptionPane.showMessageDialog(this, "The user '" + user.getName() + "' was added!", "Information", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+		if (command.equalsIgnoreCase("ViewUsers"))
+		{
+			ShowUsersDialog.showUsers(this, context);
+		}
+		if (command.equalsIgnoreCase("CATEGORIES"))
+		{
+			ShowCategoriesDialog.showCategories(this, context);
+		}
+		if (command.equalsIgnoreCase("ATTRIBUTES"))
+		{
+			ShowAttributesDialog.showAttributeCategories(this, context);
+		}
+		if (command.equalsIgnoreCase("PRODUCTS"))
+		{
+			ViewProductsDialog.showProducts(this, context);
+		}
+		//VIEW CART
+		if (command.equalsIgnoreCase("VIEWCART"))
+		{
+
+		}
+		//Add to cart
+		if (command.equalsIgnoreCase("ADDPRODUCT"))
+		{
+			cartProduct = new CartProducts();
+			if (tblProducts.getSelectedRow() >= 0)
+			{
+				String value = JOptionPane.showInputDialog(this, "Enter the quantity");
+
+				updateCarts();
+
+				try
+				{
+					int quantity = Integer.parseInt(value);
+					int productId = mdlProduct.get(tblProducts.getSelectedRow()).getId();
+					int cartId = mdlCartModel.getIdCartOpen(context.getUser().getId());
+
+					ProductRequest pr = new ProductRequest(0, productId, cartId, null, quantity, 0, null, 0);
+					if (DBOperationsProductRequest.addProductRequest(context, pr) > 0)
+					{
+						if (WaitForAllocationDialog.open(this, context, pr))
+						{
+							
+						}
+					}
+
+					if (editProductQuantity(mdlProduct.get(tblProducts.getSelectedRow()), quantity, 0))
+					{
+						cartProduct.setQuantity(quantity);
+						cartProduct.setId_product(mdlProduct.get(tblProducts.getSelectedRow()).getId());
+						cartProduct.setId_cart(mdlCartModel.getIdCartOpen(context.getUser().getId()));
+
+						if (cartProduct.getId_cart() <= 0)
+						{
+							cartProduct = null;
+						}
+						if (cartProduct != null)
+						{
+							int id = DBOperationsCartProduct.addCartProduct(context, cartProduct);
+							if (id > 0)
+							{
+								JOptionPane.showMessageDialog(this, "The product has been added !", "Information", JOptionPane.INFORMATION_MESSAGE);
+								updateTableContent(cartProduct, 0, true, cartProduct.getId_cart());
+								updateTableContent();
+							}
+							else
+							{
+								JOptionPane.showMessageDialog(this, "Could not add the product to cart !", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+							}
+						}
+					}
+				}
+				catch (NumberFormatException ex)
+				{
+					JOptionPane.showMessageDialog(this, "The Quantity is not the right format !", "Warning", JOptionPane.WARNING_MESSAGE);
+
+					return;
+				}
+			}
+		}
+
+		if (command.equalsIgnoreCase("CLOSECART"))
+		{
+			int reply = JOptionPane.showConfirmDialog(null, "Do you really want to finish the shopping ?", "Warning !", JOptionPane.YES_NO_OPTION);
+			if (reply == JOptionPane.YES_OPTION)
+			{
+				if (cart != null)
+				{
+					cart.setStatus(0);
+					if (DBOpeationsCart.editCart(context, cart))
+					{
+						JOptionPane.showMessageDialog(this, "The command has been ordered ", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+						updateTableContent(null, 0, true, 0);
+						updateCarts();
+
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(this, "Something went wrong", "Error", JOptionPane.ERROR);
+
+					}
+				}
+			}
+		}
+
+		if (command.equalsIgnoreCase("DELETECARTPRODUCT"))
+		{
+			int reply = JOptionPane.showConfirmDialog(null, "Do you really want to delete this product from your cart?", "Warning !", JOptionPane.YES_NO_OPTION);
+			if (reply == JOptionPane.YES_OPTION)
+			{
+				int row = tblCartProduct.getSelectedRow();
+				if (row >= 0)
+				{
+					CartProducts cartProd = new CartProducts();
+					cartProd = mdlCartProd.get(row);
+					Product prod = mdlProduct.getProductById(cartProd.getId_product());
+					DBOperationsCartProduct.deleteCartProudct(context, mdlCartProd.get(row));
+					if (cart != null)
+					{
+						if (cart.getStatus() == Cart.OPEN)
+							if (editProductQuantity(prod, 0, cartProd.getQuantity()))
+							{
+								updateTableContent(null, 0, true, cart.getId());
+								updateTableContent();
+							}
+
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(this, "Select the product that you want to delete from your cart!", "Information", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		}
+
+		if (command.equalsIgnoreCase("EDITQUANTITY"))
+		{
+			cartProdToUpddate = null;
+			if (tblCartProduct.getSelectedRow() >= 0)
+			{
+				cartProdToUpddate = mdlCartProd.get(tblCartProduct.getSelectedRow());
+				if (cartProdToUpddate != null)
+				{
+					String newValue = JOptionPane.showInputDialog(this, "Enter value", cartProdToUpddate.getQuantity());
+					if (newValue != null)
+					{
+						try
+						{
+							int newQuantity = Integer.parseInt(newValue);
+							Product prod = mdlProduct.getProductById(cartProdToUpddate.getId_product());
+							if (prod != null)
+							{
+								if (editProductQuantity(prod, newQuantity, cartProdToUpddate.getQuantity()))
+								{
+									cartProdToUpddate.setQuantity(newQuantity);
+
+									if (DBOperationsCartProduct.editCartProduct(context, cartProdToUpddate))
+									{
+										CartProducts cartProd = mdlCartProd.get(tblCartProduct.getSelectedRow());
+										JOptionPane.showMessageDialog(this, "The product was updated!", "Information", JOptionPane.INFORMATION_MESSAGE);
+										updateTableContent(null, 0, true, cartProd.getId_cart());
+										updateTableContent();
+									}
+								}
+							}
+						}
+						catch (NumberFormatException ex)
+						{
+							JOptionPane.showMessageDialog(this, "The Quantity is not the right format !", "Warning", JOptionPane.WARNING_MESSAGE);
+
+						}
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(this, "Cannot edit the selected product quantity !", "Warining", JOptionPane.WARNING_MESSAGE);
+					}
+				}
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "Select the product that you want to update !", "Information", JOptionPane.INFORMATION_MESSAGE);
+			}
+		}
+
+		if (command.equalsIgnoreCase("CLOSE"))
+		{
+			dispose();
+		}
+
+	}
+
+	private void updateCarts( )
+	{
+		DBOpeationsCart.listCarts(context, mdlCartModel.getList(), context.getUser().getId());
+		cart = mdlCartModel.getCartById(mdlCartModel.getIdCartOpen(context.getUser().getId()));
+		if (cart == null)
+		{
+			cart = new Cart();
+
+			cart.setId_user(context.getUser().getId());
+			cart.setStatus(Cart.OPEN);
+
+			DBOpeationsCart.addCart(context, cart);
+		}
+	}
+
+	public void updateTableContent( CartProducts cartProd, int row, boolean refresh, int idCart )
+	{
+
+		if (refresh)
+		{
+			DBOperationsCartProduct.listCartProducts(context, mdlCartProd.getList(), idCart);
+		}
+
+		mdlCartProd.sort();
+		mdlCartProd.fireTableDataChanged();
+
+		if (cartProd == null)
+		{
+			GuiTools.setCurrentRow(tblCartProduct, row);
+		}
+		else
+		{
+			GuiTools.setCurrentRow(tblCartProduct, mdlCartProd.indexOf(cartProd));
+		}
+	}
+
+	private boolean editProductQuantity( Product prod, int itemsBought, int oldValue )
+	{
+		boolean result = false;
+
+		if (prod != null)
+		{
+			int newQuantity;
+
+			newQuantity = prod.getQuantity() - itemsBought + oldValue;
+
+			if (newQuantity >= 0)
+			{
+				prod.setQuantity(newQuantity);
+				if (DBOperationsProduct.editProduct(context, prod))
+				{
+					result = true;
+				}
+			}
+			else
+			{
+				JOptionPane.showMessageDialog(this, "You bought to many  !", "Information", JOptionPane.INFORMATION_MESSAGE);
+			}
+
+		}
+
+		return result;
+	}
+}

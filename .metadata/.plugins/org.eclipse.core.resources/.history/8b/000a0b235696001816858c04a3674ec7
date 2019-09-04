@@ -1,0 +1,36 @@
+package frames;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JFrame;
+
+import app.AppContext;
+import tools.ConnectionTools;
+
+public class MainFrame extends JFrame implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+
+	private AppContext context;
+
+	public MainFrame()
+	{
+		super();
+		SetupGui();
+	}
+
+	private void SetupGui( )
+	{
+		setTitle("Server");
+		context = new AppContext(ConnectionTools.openConnection("192.168.200.112:1433;instanceName=meseriashu", "Adrian", "sa", "Meseriashu10"));
+
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+
+	}
+
+}

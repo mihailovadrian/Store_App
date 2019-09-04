@@ -1,0 +1,6 @@
+package frames.models.comparator;
+
+public class ComparatorForProductRequest
+{
+
+}

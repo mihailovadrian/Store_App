@@ -1,0 +1,247 @@
+package frames;
+
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.*;
+import app.AppContext;
+import dbTools.DBOperationsAttributeValues;
+import entities.*;
+import frames.models.AttributeValuesModel;
+import tools.GridPanel;
+import tools.GuiTools;
+
+public class EditAttributeValuesDialog extends JDialog implements ActionListener
+{
+	private static final long serialVersionUID = 1L;
+	private boolean success;
+
+	private AttributeValues value;
+	private AttributeValues valueToUpdate;
+
+	private AttributeValuesModel mdlValue;
+
+	private AppContext context;
+
+	private JLabel lblValue;
+	private JTextField txtValue;
+
+	private Attribute attrRecevied;
+
+	public static AttributeValues addAttributeValueDialog( JDialog parentFrame, AppContext context, Attribute attr )
+	{
+		AttributeValues result = null;
+
+		EditAttributeValuesDialog d = new EditAttributeValuesDialog(context, parentFrame, null, attr);
+
+		GuiTools.showDialog(d, parentFrame, null);
+
+		if (d.success)
+		{
+
+			result = d.value;
+
+		}
+
+		return result;
+	}
+
+	public static AttributeValues editValue( JDialog parentDialog, AppContext context, AttributeValues valueToUpdate, Attribute attr )
+	{
+		AttributeValues result = null;
+
+		EditAttributeValuesDialog d = new EditAttributeValuesDialog(context, parentDialog, valueToUpdate, attr);
+
+		GuiTools.showDialog(d, parentDialog, null);
+
+		if (d.success)
+		{
+			result = d.value;
+		}
+
+		return result;
+	}
+
+	public EditAttributeValuesDialog( AppContext context, JDialog parentFrame, AttributeValues valueToUpdate, Attribute attr )
+	{
+		super(parentFrame);
+		success = false;
+		this.value = null;
+		this.valueToUpdate = valueToUpdate;
+		attrRecevied = attr;
+		setupGUI(context);
+	}
+
+	private void setupGUI( AppContext context )
+	{
+		setSize(new Dimension(150, 150));
+		setMinimumSize(new Dimension(200, 200));
+		this.context = context;
+		if (valueToUpdate == null)
+		{
+			setTitle("Add Value");
+		}
+		else
+		{
+			setTitle("Edit Value");
+		}
+
+		txtValue = new JTextField();
+		lblValue = new JLabel("Value");
+
+		mdlValue = new AttributeValuesModel();
+
+		if (valueToUpdate != null)
+		{
+			txtValue.setText(valueToUpdate.getValue());
+		}
+		JButton btnAddValue = new JButton(valueToUpdate != null ? "Update" : "Add");
+		btnAddValue.addActionListener(this);
+		btnAddValue.setActionCommand("SAVE");
+
+		JButton btnClose = new JButton("Cancel");
+		btnClose.addActionListener(this);
+		btnClose.setActionCommand("CLOSE");
+
+		GridPanel pan = new GridPanel(5, 5, 0, 0);
+
+		pan.addObject(0, 0, 1.0, 0.0, 1, 1, lblValue);
+		pan.addObject(0, 1, 1.0, 0.0, 1, 1, txtValue);
+
+		GridPanel panButtons = new GridPanel(5, 5, 0, 0);
+
+		panButtons.addSizing(0, 0, 1.0, 0.0, 1, 1, 10, 0);
+		panButtons.addObject(1, 0, 0.0, 0.0, 1, 1, btnAddValue);
+		panButtons.addObject(2, 0, 0.0, 0.0, 1, 1, btnClose);
+		pan.addSizing(0, 4, 0, 0, 1, 1, 1, 1);
+		pan.addObject(0, 3, 1.0, 0.0, 3, 1, panButtons);
+		pan.addSizing(1, 5, 0, 0, 1, 1, 1, 1);
+		pan.addSizing(2, 2, 0, 0, 1, 1, 0, 0);
+		pan.addSizing(2, 3, 0, 0, 1, 1, 0, 0);
+
+
+		setContentPane(pan);
+	}
+
+	@Override
+	public void actionPerformed( ActionEvent e )
+	{
+		String command = e.getActionCommand();
+		if (command.equalsIgnoreCase("Save"))
+		{
+
+			AttributeValues valueToSave = new AttributeValues();
+			valueToSave.setValue(txtValue.getText());
+			valueToSave.setId_Attribute(attrRecevied.getId_Attribute());
+			DBOperationsAttributeValues.listValues(context, mdlValue.getList(), attrRecevied.getId_Attribute());
+			if (valueToUpdate == null)
+			{
+				if (checkValueType(attrRecevied, valueToSave))
+				{
+					if (mdlValue.CheckValue(valueToSave))
+					{
+						int id = DBOperationsAttributeValues.addValue(context, valueToSave);
+						if (id > 0)
+						{
+							value = DBOperationsAttributeValues.getValue(context, id);
+							success = true;
+							dispose();
+						}
+						else
+						{
+							JOptionPane.showMessageDialog(this, "The value couldn't be added!", "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(this, "The value Exist for this attribute !", "Error", JOptionPane.ERROR_MESSAGE);
+
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(this, "The value should be " + mdlValue.getValueTypeString(attrRecevied.getValueType()), "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+			else
+			{
+				valueToSave.setId(valueToUpdate.getId());
+				if (checkValueType(attrRecevied, valueToSave))
+				{
+					if (mdlValue.CheckValue(valueToSave))
+					{
+						if (DBOperationsAttributeValues.editAttributeValue(context, valueToSave))
+						{
+
+							value = DBOperationsAttributeValues.getValue(context, valueToUpdate.getId());
+							success = true;
+							dispose();
+						}
+						else
+						{
+							String msg = "The Value couldn't be added!";
+							if (valueToSave != null)
+							{
+								msg = "The Value couldn't be updated!";
+							}
+
+							JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+						}
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(this, "The value Exist for this attribute !", "Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(this, "The value should be " + mdlValue.getValueTypeString(attrRecevied.getValueType()), "Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		}
+		if (command.equalsIgnoreCase("Close"))
+		{
+			dispose();
+		}
+	}
+
+	public boolean checkValueType( Attribute attr, AttributeValues value )
+	{
+		boolean result = false;
+		switch (attr.getValueType())
+		{
+			case 0:
+				try
+				{
+					int check = Integer.parseInt(value.getValue());
+					if (check >= 0)
+						return true;
+				}
+				catch (NumberFormatException e)
+				{
+					result = false;
+				}
+				break;
+
+			case 1:
+				try
+				{
+					double check = Double.parseDouble((value.getValue()));
+					if (check >= 0)
+						return true;
+				}
+				catch (NumberFormatException e)
+				{
+					result = false;
+				}
+
+				break;
+			case 2:
+				result = true;
+				break;
+		}
+		return result;
+	}
+
+}

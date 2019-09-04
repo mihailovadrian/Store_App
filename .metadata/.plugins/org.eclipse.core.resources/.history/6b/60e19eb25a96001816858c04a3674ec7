@@ -1,0 +1,68 @@
+package threads;
+
+import java.util.List;
+
+import app.AppContext;
+import dbTools.DBOperationsProductRequest;
+import entities.ProductRequest;
+import frames.models.ProductRequestModel;
+import tools.MutableBoolean;
+
+public class ProcessProductRequestsThread extends Thread
+{
+	private static final long SLEEP_BETWEEN_CHECKS = 1000;
+
+	private AppContext context;
+	private MutableBoolean stop;
+
+	private ProductRequestModel mdlProdReq;
+
+	public ProcessProductRequestsThread( AppContext context, MutableBoolean stop )
+	{
+		super();
+
+		this.context = context;
+		this.stop = stop;
+		mdlProdReq = new ProductRequestModel();
+	}
+
+	public void run( )
+	{
+		boolean finished = false;
+
+		while (!finished)
+		{	//allocated
+			DBOperationsProductRequest.listProductRequests(context, mdlProdReq.getList(), DBOperationsProductRequest.FILTER_TYPE_ALLOCATED);
+			List<ProductRequest> list = mdlProdReq.getList();
+			for (ProductRequest pr : list)
+			{
+				if (pr.getStatus() == ProductRequest.ALLOCATED)
+				{
+
+					DBOperationsProductRequest.cancelProductRequest(context, pr);
+				}
+				else
+				{
+					try
+					{
+						sleep(SLEEP_BETWEEN_CHECKS);
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}
+			//Open
+			DBOperationsProductRequest.listProductRequests(context, list, DBOperationsProductRequest.FILTER_TYPE_OPEN);
+			if (stop != null)
+			{
+				if (stop.isValue())
+				{
+					finished = true;
+					System.out.println("Manually stopped the the product requets allocation.");
+				}
+			}
+		}
+	}
+}
